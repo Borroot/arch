@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # AUTHOR: Bram Pulles
 
+# Run the arch.img when arch is installed there.
+
 qemu-system-x86_64 \
 	-m 6G \
 	-enable-kvm \
