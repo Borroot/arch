@@ -1,0 +1,117 @@
+Make sure that UEFI mode is enabled in the bios and secure boot is turned off.
+Download the latest ISO from the arch site and write it to a usb.
+
+	$ lsblk  # identify the usb (probably /dev/sdc)
+	# dd bs=4M if=path/to/iso of=/dev/sdc conv=fsync oflag=direct status=progress
+
+	# cat path/to/iso > /dev/sdc  # alternative option
+	# cp path/to/iso /dev/sdc     # alternative option
+
+Boot from the usb (make sure the boot order in the bios is correct).
+Verify that the bootmode is UEFI (not the deprecated BIOS).
+
+	# ls /sys/firmware/efi/efivars  # if folder exists then UEFI is used
+
+Connect to the internet using a LAN cable.
+Verify the connection.
+
+	# ping archlinux.org
+
+Update the system clock and sync with the internet.
+
+	# timedatectl set-ntp true
+	# timedatectl status  # to verify NTP is active
+
+Partition the disks.
+
+	# lsblk  # identify the disk names, e.g. /dev/sda
+	# fdisk /dev/sda
+
+Create the EFI system boot partition.
+
+	n, skip, skip, skip, +300M  # create 300M large EFI partition
+	t, EF  # set the partition type to EFI
+
+Create the root linux partition.
+
+	n, skip, skip, skip, skip  # fill the rest with root (or e.g. +300G)
+	w  # write table to disk and exit
+
+Format the partitions.
+
+	# lsblk  # identify the boot and root partition names
+	# mkfs.vfat /dev/boot_partition  # e.g. /dev/sda1
+	# mkfs.ext4 /dev/root_partition  # e.g. /dev/sda2
+
+Mount the partitions.
+
+	# mount /dev/root_partition /mnt
+	# mkdir /mnt/boot
+	# mount /dev/boot_partition /mnt/boot
+
+Update the mirrorlist.
+
+	# reflector
+	# vim /etc/pacman.d/mirrorlist  # check if it is satisfactory
+
+Install arch on the root partition.
+
+	# pacstrap /mnt base linux linux-firmware
+
+Generate the fstab configuration file.
+
+	# genfstab -U /mnt >> /mnt/etc/fstab
+
+Chroot into the new system!
+
+	# arch-chroot /mnt
+
+Set the timezone and the hardware clock (assumes hardware clock is set to UTC).
+
+	# ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
+	# hwclock --systohc
+
+Set the locales.
+
+	# pacman -S neovim  # or another text editor
+	# nvim /etc/locale.gen  # uncomment 'en_US.UTF-8 UTF-8'
+	# locale-gen
+	# echo 'LANG=en_US.UTF-8' > /etc/locale.conf
+
+Create the hostname file (name of the device).
+
+	# echo 'epic hostname' > /etc/hostname
+
+Set the root password.
+
+	# passwd
+
+Install the GRUB boot loader.
+In case GRUB is not loaded by the bios, add --removable to the grub-install command.
+
+	# pacman -S grub efibootmgr os-prober
+	# grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+	# nvim /etc/default/grub  # add GRUB_DISABLE_OS_PROBER=false and set GRUB_TIMEOUT=1
+	# grub-mkconfig -o /boot/grub/grub.cfg
+
+Setup a password for GRUB (first make sure the previous setup works).
+
+	# grub-mkpasswd-pbkdf2 >> /etc/grub.d/40_custom  # type 'the password + enter' twice
+	# nvim /etc/grub.d/40_custom  # remove everything that got appended except the hash
+
+	set superusers="borroot"
+	password_pbkdf2 borroot grub.pbkdf2.sha512.10000.1234567890ABCDEF
+
+	# grub-mkconfig -o /boot/grub/grub.cfg
+
+Add a new superuser.
+
+	# useradd --create-home --groups wheel borroot
+	# passwd borroot
+	# pacman -S sudo
+	# EDITOR=nvim sudoedit /etc/sudoers  # uncomment '%wheel ALL=(ALL) NOPASSWD: ALL'
+
+Reboot and enjoy the fresh setup!
+
+	# exit
+	# reboot
