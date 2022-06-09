@@ -103,7 +103,7 @@ Add a new superuser.
 
 Install some programs.
 
-	# pacman -S networkmanager git yadm
+	# pacman -S networkmanager git yadm reflector openssh
 
 Reboot and enjoy the fresh setup!
 
@@ -119,3 +119,8 @@ Setup a password for GRUB (first make sure the previous setup works).
 	password_pbkdf2 borroot grub.pbkdf2.sha512.10000.1234567890ABCDEF
 
 	# grub-mkconfig -o /boot/grub/grub.cfg
+
+Enable and start networkmanager for internet connectivity.
+
+	# systemctl enable NetworkManager
+	# systemctl start NetworkManager
