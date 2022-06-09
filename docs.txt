@@ -94,6 +94,22 @@ In case GRUB is not loaded by the bios, add --removable to the grub-install comm
 	# nvim /etc/default/grub  # add GRUB_DISABLE_OS_PROBER=false and set GRUB_TIMEOUT=1
 	# grub-mkconfig -o /boot/grub/grub.cfg
 
+Add a new superuser.
+
+	# useradd --create-home --groups wheel borroot
+	# passwd borroot
+	# pacman -S sudo
+	# EDITOR=nvim sudoedit /etc/sudoers  # uncomment '%wheel ALL=(ALL) NOPASSWD: ALL'
+
+Install some programs.
+
+	# pacman -S networkmanager git yadm
+
+Reboot and enjoy the fresh setup!
+
+	# exit
+	# reboot
+
 Setup a password for GRUB (first make sure the previous setup works).
 
 	# grub-mkpasswd-pbkdf2 >> /etc/grub.d/40_custom  # type 'the password + enter' twice
@@ -103,15 +119,3 @@ Setup a password for GRUB (first make sure the previous setup works).
 	password_pbkdf2 borroot grub.pbkdf2.sha512.10000.1234567890ABCDEF
 
 	# grub-mkconfig -o /boot/grub/grub.cfg
-
-Add a new superuser.
-
-	# useradd --create-home --groups wheel borroot
-	# passwd borroot
-	# pacman -S sudo
-	# EDITOR=nvim sudoedit /etc/sudoers  # uncomment '%wheel ALL=(ALL) NOPASSWD: ALL'
-
-Reboot and enjoy the fresh setup!
-
-	# exit
-	# reboot
