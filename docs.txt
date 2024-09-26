@@ -13,6 +13,20 @@ Verify that the bootmode is UEFI (not the deprecated BIOS).
 	# ls /sys/firmware/efi/efivars  # if folder exists then UEFI is used
 
 Connect to the internet using a LAN cable.
+If no ethernet is available, enable wifi by using iwctl.
+
+	# iwctl
+
+Get the device name and use it to connect to a network.
+
+	[iwd]# device list
+	[iwd]# device name set-property Powered on
+
+	[iwd]# station name scan
+	[iwd]# station name get-networks
+
+	[iwd]# station name connect SSID
+
 Verify the connection.
 
 	# ping archlinux.org
@@ -53,6 +67,10 @@ Update the mirrorlist.
 
 	# reflector
 	# vim /etc/pacman.d/mirrorlist  # check if it is satisfactory
+
+Update the arch keyring.
+
+	# pacman -S archlinux-keyring
 
 Install arch on the root partition.
 
