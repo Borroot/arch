@@ -43,7 +43,7 @@ Partition the disks.
 
 Create the EFI system boot partition.
 
-	n, skip, skip, skip, +300M  # create 300M large EFI partition
+	n, skip, skip, skip, +1G  # create 1G large EFI partition
 	t, EF  # set the partition type to EFI
 
 Create the root linux partition.
